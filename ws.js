@@ -1,4 +1,4 @@
-const port = 3001;
+const port = 3000;
 const Koa = require('koa')
 const websockify = require('koa-websocket')
 const bodyparser = require('koa-bodyparser')
