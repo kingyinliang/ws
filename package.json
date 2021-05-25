@@ -8,7 +8,7 @@
     "stop": "pm2 stop ws",
     "dev": "./node_modules/.bin/nodemon bin/www",
     "ws": "./node_modules/.bin/nodemon ws.js",
-    "test": "node ws.js",
+    "test": "node bin/www",
     "prd": "node bin/www"
   },
   "dependencies": {
