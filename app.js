@@ -9,7 +9,6 @@ const cors = require('koa-cors')
 
 const app = new Koa()
 const index = require('./routes/index')
-const users = require('./routes/users')
 const v1 = require('./routes/v1')
 
 // error handler
@@ -21,10 +20,7 @@ app.use(bodyparser({
 }))
 
 // cors跨域
-app.use(cors({
-  origin: 'http://kingyinliang.shinho.net.cn:8080',
-  credentials: true
-}))
+app.use(cors())
 app.use(json())
 app.use(logger())
 app.use(require('koa-static')(__dirname + '/public'))
@@ -43,7 +39,6 @@ app.use(async (ctx, next) => {
 
 // routes
 app.use(index.routes(), index.allowedMethods())
-app.use(users.routes(), users.allowedMethods())
 app.use(v1.routes(), v1.allowedMethods())
 
 // error-handling
