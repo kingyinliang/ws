@@ -1,13 +1,18 @@
 const url = require('url')
 
-let messageData = null
-let userList = []
+let editingRoom = {}
 
 module.exports = (socket, io) => {
-    if (!userList.length) {
-        messageData = null
-    }
     const query = url.parse(socket.request.url,true).query
+    if (!editingRoom[query.editingId]) {
+        editingRoom[query.editingId] = {
+            userList: [],
+            messageData: null
+        }
+    }
+    if (!editingRoom[query.editingId].userList.length) {
+        editingRoom[query.editingId].messageData = null
+    }
     let userInfo = {}
     if (query.userId === '4f8ec92927c53af338') {
         userInfo = { id: '4f8ec92927c53af338', realName: '李浩' }
@@ -18,30 +23,32 @@ module.exports = (socket, io) => {
     }
 
     // 在线用户列表添加用户
-    userList.push(userInfo)
-    socket.join(query.userId)
+    editingRoom[query.editingId].userList.push(userInfo)
+    socket.join(query.editingId)
+
+    console.log(io.adapter.rooms)
 
     // 广播在线用户
-    io.emit('user-list', userList)
+    io.to(query.editingId).emit('user-list', editingRoom[query.editingId].userList)
     // 给当前用户当前编辑内容
-    messageData? socket.emit('all-message', messageData) : ''
+    editingRoom[query.editingId].messageData? socket.emit('all-message', editingRoom[query.editingId].messageData) : ''
 
     // 接收更新内容
     socket.on('text-change', (delta) => {
-        socket.broadcast.emit('text-change', delta)
+        socket.broadcast.to(query.editingId).emit('text-change', delta)
     })
 
     // 接收全部内容
     socket.on('all-message', (message) => {
-        messageData = message
+        editingRoom[query.editingId].messageData = message
     })
 
     // 接收位置信息
     socket.on('selection-change', (range) => {
         // 更新用户位置
-        userList.find(item => item.id === query.userId).range = range
+        editingRoom[query.editingId].userList.find(item => item.id === query.userId).range = range
         // 广播出去自己的位置
-        socket.broadcast.emit('selection-change', {
+        socket.broadcast.to(query.editingId).emit('selection-change', {
             id: query.userId,
             range
         })
@@ -50,9 +57,9 @@ module.exports = (socket, io) => {
     // 关闭连接
     socket.on('disconnect', () => {
         // 在线用户列表移出用户
-        userList = userList.filter(item => item.id !== query.userId)
-        socket.leave(query.userId)
+        editingRoom[query.editingId].userList = editingRoom[query.editingId].userList.filter(item => item.id !== query.userId)
+        // socket.leave(query.userId)
         // 广播在线用户
-        io.emit('user-list', userList)
+        io.to(query.editingId).emit('user-list', editingRoom[query.editingId].userList)
     })
 }
