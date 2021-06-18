@@ -23,10 +23,11 @@ module.exports = (socket, io) => {
     }
 
     // 在线用户列表添加用户
-    if (!editingRoom[query.editingId].userList.find(item => item.id === userInfo.id)) {
-        editingRoom[query.editingId].userList.push(userInfo)
-        socket.join(query.editingId)
+    if (editingRoom[query.editingId].userList.find(item => item.id === userInfo.id)) {
+        editingRoom[query.editingId].userList = editingRoom[query.editingId].userList.filter(item => item.id !== query.userId)
     }
+    editingRoom[query.editingId].userList.push(userInfo)
+    socket.join(query.editingId)
 
     console.log(io.adapter.rooms)
 
