@@ -3,11 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "pm2 start --name ws ./bin/www --watch",
-    "restart": "pm2 restart ws",
-    "stop": "pm2 stop ws",
+    "start": "pm2 start --name socketIo ./bin/www --watch",
+    "restart": "pm2 restart socketIo",
+    "stop": "pm2 stop socketIo",
     "dev": "./node_modules/.bin/nodemon bin/www",
-    "ws": "./node_modules/.bin/nodemon ws.js",
     "test": "node bin/www",
     "prd": "node bin/www"
   },
